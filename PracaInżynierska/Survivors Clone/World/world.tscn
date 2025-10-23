@@ -1,0 +1,35 @@
+[gd_scene load_steps=8 format=3 uid="uid://d1us7nwaqdrjs"]
+
+[ext_resource type="Texture2D" uid="uid://bwatfgjrxy858" path="res://Textures/dirt_full_new.png" id="1_62w18"]
+[ext_resource type="PackedScene" uid="uid://dp60vrvcbt3lo" path="res://Player/player.tscn" id="2_8a836"]
+[ext_resource type="PackedScene" uid="uid://df7c6ojntbdlb" path="res://Utility/enemy_spawner.tscn" id="3_j8job"]
+[ext_resource type="Script" uid="uid://ebkuuqhexblh" path="res://Utility/spawn_info.gd" id="4_k8do8"]
+[ext_resource type="PackedScene" uid="uid://5jkw6sueimh2" path="res://Enemy/enemy.tscn" id="5_bkhv4"]
+[ext_resource type="PackedScene" path="res://World/obelisk.tscn" id="6_bkhv4"]
+
+[sub_resource type="Resource" id="Resource_yf0ba"]
+script = ExtResource("4_k8do8")
+time_end = 60
+enemy = ExtResource("5_bkhv4")
+enemy_num = 1
+enemy_spawn_delay = 1
+metadata/_custom_type_script = "uid://ebkuuqhexblh"
+
+[node name="World" type="Node2D"]
+
+[node name="Background" type="Sprite2D" parent="."]
+texture_filter = 1
+texture_repeat = 2
+position = Vector2(626, 322)
+texture = ExtResource("1_62w18")
+region_enabled = true
+region_rect = Rect2(269.444, 328.749, 1467.22, 747.418)
+
+[node name="Player" parent="." instance=ExtResource("2_8a836")]
+position = Vector2(466, 330)
+
+[node name="EnemySpawner" parent="." instance=ExtResource("3_j8job")]
+spawns = Array[ExtResource("4_k8do8")]([SubResource("Resource_yf0ba")])
+
+[node name="Obelisk" parent="." instance=ExtResource("6_bkhv4")]
+position = Vector2(519, 315)

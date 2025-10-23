@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5c6d7e8f9g0h"]
+
+[ext_resource type="Script" uid="uid://e9f0g1h2i3j4k" path="res://Weapons/auto_weapon.gd" id="1_autoweapon"]
+
+[node name="AutoWeapon" type="Node2D"]
+script = ExtResource("1_autoweapon")
+projectile_speed = 300.0
+fire_rate = 1.0
+detection_range = 150.0
+
+[node name="FireTimer" type="Timer" parent="."]
+wait_time = 1.0
+one_shot = false
