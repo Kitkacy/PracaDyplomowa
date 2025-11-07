@@ -1,25 +1,20 @@
-[gd_scene load_steps=6 format=3 uid="uid://dxan1ca71w6w2"]
+[gd_scene load_steps=7 format=3 uid="uid://dxan1ca71w6w2"]
 
-[ext_resource type="Script" path="res://World/obelisk.gd" id="1_obelisk"]
+[ext_resource type="Script" uid="uid://dch3y8al511bl" path="res://World/obelisk.gd" id="1_obelisk"]
 [ext_resource type="PackedScene" uid="uid://cln6w0mlch73t" path="res://Player/healthbar.tscn" id="2_healthbar"]
 [ext_resource type="PackedScene" uid="uid://4q6qgr6m2imm" path="res://Utility/hurtbox.tscn" id="3_hurtbox"]
+[ext_resource type="Texture2D" uid="uid://c2wwhys8m35ut" path="res://Textures/Main_Base.png" id="4_je3em"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lw4pl"]
 size = Vector2(41, 39)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lw4pl"]
-radius = 16.0
-height = 38.0
+radius = 21.0
+height = 44.0
 
 [node name="Obelisk" type="StaticBody2D" groups=["obelisk"]]
+collision_mask = 0
 script = ExtResource("1_obelisk")
-
-[node name="Sprite2D" type="ColorRect" parent="."]
-offset_left = -16.0
-offset_top = -32.0
-offset_right = 16.0
-offset_bottom = 32.0
-color = Color(0.8, 0, 0, 1)
 
 [node name="HealthBar" parent="." instance=ExtResource("2_healthbar")]
 offset_left = -20.0
@@ -28,10 +23,10 @@ offset_right = 20.0
 offset_bottom = -42.0
 
 [node name="Hurtbox" parent="." instance=ExtResource("3_hurtbox")]
-collision_layer = 2
-collision_mask = 2
-monitoring = true
-monitorable = true
+position = Vector2(0, -2)
+scale = Vector2(1.0544422, 1.0799992)
+collision_layer = 1
+collision_mask = 8
 
 [node name="CollisionShape2D" parent="Hurtbox" index="0"]
 position = Vector2(0, 16)
@@ -40,6 +35,12 @@ shape = SubResource("RectangleShape2D_lw4pl")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 14)
 shape = SubResource("CapsuleShape2D_lw4pl")
+
+[node name="MainBase" type="Sprite2D" parent="."]
+modulate = Color(0.65012825, 0.6501283, 0.65012825, 1)
+position = Vector2(-1, 0)
+scale = Vector2(0.039579794, 0.039579805)
+texture = ExtResource("4_je3em")
 
 [connection signal="health_changed" from="." to="HealthBar" method="update_health"]
 [connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]

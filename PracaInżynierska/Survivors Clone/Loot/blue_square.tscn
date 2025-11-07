@@ -9,7 +9,7 @@ size = Vector2(12, 12)
 size = Vector2(16, 16)
 
 [node name="BlueSquare" type="Area2D" groups=["loot"]]
-collision_layer = 16
+collision_layer = 128
 collision_mask = 2
 script = ExtResource("1_bluesquare")
 
@@ -20,7 +20,7 @@ modulate = Color(0, 0.5, 1, 1)
 shape = SubResource("RectangleShape2D_1")
 
 [node name="PickupArea" type="Area2D" parent="."]
-collision_layer = 16
+collision_layer = 128
 collision_mask = 2
 
 [node name="PickupCollisionShape2D" type="CollisionShape2D" parent="PickupArea"]

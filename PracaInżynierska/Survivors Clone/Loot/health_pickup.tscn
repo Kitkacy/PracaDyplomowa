@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://jgr6c5qmnf77"]
+
+[ext_resource type="Script" uid="uid://d2ex13ujmryk7" path="res://Loot/health_pickup.gd" id="1_health_pickup"]
+[ext_resource type="Texture2D" uid="uid://cstbwlkfgymvw" path="res://Textures/Health.png" id="2_health_texture"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 8.0
+
+[sub_resource type="Gradient" id="Gradient_j4eue"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6544v"]
+gradient = SubResource("Gradient_j4eue")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.77350426, 0.85897434)
+
+[node name="HealthPickup" type="Area2D" groups=["health_pickup", "loot"]]
+collision_layer = 128
+collision_mask = 2
+script = ExtResource("1_health_pickup")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+light_mask = 0
+scale = Vector2(0.01065353, 0.01065353)
+texture = ExtResource("2_health_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="DespawnTimer" type="Timer" parent="."]
+wait_time = 30.0
+one_shot = true
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+scale = Vector2(0.8281721, 0.73102444)
+color = Color(0, 0.8509804, 0.34509805, 1)
+energy = 6.38
+texture = SubResource("GradientTexture2D_6544v")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="DespawnTimer" to="." method="_on_despawn_timer_timeout"]

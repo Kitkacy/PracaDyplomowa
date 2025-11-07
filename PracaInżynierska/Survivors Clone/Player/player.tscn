@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dp60vrvcbt3lo"]
+[gd_scene load_steps=14 format=3 uid="uid://dp60vrvcbt3lo"]
 
 [ext_resource type="Script" uid="uid://dprlf68i7jmsd" path="res://Player/player.gd" id="1_btcbx"]
 [ext_resource type="Texture2D" uid="uid://criy10cot6gnx" path="res://Textures/Player/player_sprite.png" id="1_l8h54"]
@@ -6,44 +6,87 @@
 [ext_resource type="PackedScene" uid="uid://cln6w0mlch73t" path="res://Player/healthbar.tscn" id="4_healthbar"]
 [ext_resource type="PackedScene" uid="uid://b5c6d7e8gag0h" path="res://Weapons/auto_weapon.tscn" id="5_autoweapon"]
 [ext_resource type="PackedScene" uid="uid://dc3dw7mq0tqbu" path="res://UI/blue_square_counter.tscn" id="6_counter"]
-[ext_resource type="PackedScene" path="res://UI/exp_bar.tscn" id="7_expbar"]
+[ext_resource type="PackedScene" uid="uid://bubet1rjwbnyl" path="res://UI/exp_bar.tscn" id="7_expbar"]
+[ext_resource type="PackedScene" uid="uid://chirmpegn83dg" path="res://UI/building_menu.tscn" id="8_building"]
+[ext_resource type="PackedScene" uid="uid://bk5mq2ro4hvol" path="res://UI/phase_timer.tscn" id="9_phase_timer"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4ntmi"]
-radius = 9.0
+radius = 5.0
 height = 18.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gwnis"]
-size = Vector2(11, 20)
+size = Vector2(22.875, 50)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 71
 motion_mode = 1
 script = ExtResource("1_btcbx")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+light_mask = 0
 texture_filter = 1
+position = Vector2(0, 1.9999998)
+scale = Vector2(0.026, 0.026)
 texture = ExtResource("1_l8h54")
 hframes = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
-[node name="BlueSquareCounter" parent="Camera2D" instance=ExtResource("6_counter")]
-z_index = 100
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="BlueSquareCounter" parent="CanvasLayer" instance=ExtResource("6_counter")]
 anchors_preset = 0
 anchor_top = 0.0
 anchor_bottom = 0.0
-offset_left = -304.0
-offset_top = 107.0
-offset_right = -154.0
-offset_bottom = 167.0
+offset_left = 22.0
+offset_top = 294.0
+offset_right = 172.0
+offset_bottom = 354.0
+grow_vertical = 1
+metadata/_edit_use_anchors_ = true
 
-[node name="ExpBar" parent="Camera2D" instance=ExtResource("7_expbar")]
-offset_left = -300.0
-offset_top = -180.0
-offset_right = -100.0
-offset_bottom = -164.0
+[node name="ExpBar" parent="CanvasLayer" instance=ExtResource("7_expbar")]
+offset_left = 39.0
+offset_top = 9.0
+offset_right = 239.0
+offset_bottom = 25.0
+metadata/_edit_use_anchors_ = true
+
+[node name="BuildingMenu" parent="CanvasLayer" instance=ExtResource("8_building")]
+z_index = 100
+anchors_preset = -1
+anchor_left = -0.16875
+anchor_right = -0.16875
+offset_left = 203.0
+offset_top = 292.0
+offset_right = 404.0
+offset_bottom = 342.0
+
+[node name="PhaseTimer" parent="CanvasLayer" instance=ExtResource("9_phase_timer")]
+z_index = 100
+offset_left = -11.0
+offset_top = 8.0
+offset_right = -11.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(2, 7)
+position = Vector2(2, 3)
+scale = Vector2(2, 2)
 shape = SubResource("CapsuleShape2D_4ntmi")
 
 [node name="walk_timer" type="Timer" parent="."]
@@ -51,21 +94,47 @@ wait_time = 0.2
 one_shot = true
 
 [node name="Hurtbox" parent="." instance=ExtResource("3_btcbx")]
-collision_layer = 2
-collision_mask = 2
+collision_layer = 32
+collision_mask = 8
 
 [node name="CollisionShape2D" parent="Hurtbox" index="0"]
-position = Vector2(1.5, 3)
+position = Vector2(1.5625, 2)
 shape = SubResource("RectangleShape2D_gwnis")
-
-[node name="HealthBar" parent="." instance=ExtResource("4_healthbar")]
-offset_left = -20.0
-offset_top = 30.0
-offset_right = 20.0
-offset_bottom = 38.0
 
 [node name="AutoWeapon" parent="." instance=ExtResource("5_autoweapon")]
 projectile_speed = 100.0
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+position = Vector2(0, 0.99999994)
+scale = Vector2(1.2851563, 0.74313015)
+color = Color(0.9880335, 0.719769, 0.82217735, 1)
+energy = 2.5
+shadow_enabled = true
+shadow_color = Color(0.2231029, 0.2231029, 0.22310287, 0)
+shadow_filter = 2
+shadow_filter_smooth = 1.0
+texture = SubResource("GradientTexture2D_light")
+
+[node name="HealthBar" parent="." instance=ExtResource("4_healthbar")]
+light_mask = 16384
+visibility_layer = 16384
+offset_left = -18.0
+offset_top = 28.0
+offset_right = 22.0
+offset_bottom = 36.0
+metadata/_edit_use_anchors_ = true
+
+[node name="PointLight2D2" type="PointLight2D" parent="."]
+light_mask = 2
+visibility_layer = 2
+position = Vector2(2, -1)
+scale = Vector2(0.353157, 0.26440245)
+enabled = false
+color = Color(0.94298524, 0.24163851, 0.63203466, 1)
+energy = 5.06
+shadow_color = Color(0.2231029, 0.2231029, 0.22310287, 0)
+shadow_filter_smooth = 1.0
+texture = SubResource("GradientTexture2D_light")
 
 [connection signal="health_changed" from="." to="HealthBar" method="update_health"]
 [connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]

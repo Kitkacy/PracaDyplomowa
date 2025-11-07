@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c9x8y7z6w5v4u"]
+
+[ext_resource type="Script" path="res://Boundaries/boundary_placer.gd" id="1_placer"]
+
+[node name="BoundaryPlacer" type="Node2D"]
+script = ExtResource("1_placer")

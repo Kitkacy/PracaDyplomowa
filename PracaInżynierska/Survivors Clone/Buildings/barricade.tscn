@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://dvpg77ijh0654"]
+
+[ext_resource type="Script" uid="uid://dcf6rja7gqvo1" path="res://Buildings/barricade.gd" id="1_barricade"]
+[ext_resource type="PackedScene" uid="uid://cln6w0mlch73t" path="res://Player/healthbar.tscn" id="2_healthbar"]
+[ext_resource type="Texture2D" uid="uid://cukiexbmrtrb5" path="res://Textures/barykada.png" id="2_pm85d"]
+[ext_resource type="PackedScene" uid="uid://4q6qgr6m2imm" path="res://Utility/hurtbox.tscn" id="3_hurtbox"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_barricade"]
+size = Vector2(60, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(67, 27.5)
+
+[node name="Barricade" type="StaticBody2D" groups=["building"]]
+collision_mask = 0
+script = ExtResource("1_barricade")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.45840496, 0.45840508, 0.4584049, 1)
+position = Vector2(0, -1)
+scale = Vector2(0.030485526, 0.030485526)
+texture = ExtResource("2_pm85d")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_barricade")
+
+[node name="HealthBar" parent="." instance=ExtResource("2_healthbar")]
+offset_left = -20.0
+offset_top = -25.0
+offset_right = 20.0
+offset_bottom = -17.0
+
+[node name="Hurtbox" parent="." instance=ExtResource("3_hurtbox")]
+collision_layer = 1
+collision_mask = 8
+
+[node name="CollisionShape2D" parent="Hurtbox" index="0"]
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[connection signal="health_changed" from="." to="HealthBar" method="update_health"]
+[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
+
+[editable path="Hurtbox"]

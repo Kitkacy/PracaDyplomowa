@@ -1,0 +1,62 @@
+[gd_scene load_steps=8 format=3 uid="uid://c6x8nah7n2pk5"]
+
+[ext_resource type="Script" uid="uid://cyyol63ysvmeb" path="res://Enemy/enemy_kobold_strong.gd" id="1_strong"]
+[ext_resource type="Texture2D" uid="uid://bddki6g7rtfkv" path="res://Textures/Kobold_strong.png" id="2_xejtf"]
+[ext_resource type="PackedScene" uid="uid://4q6qgr6m2imm" path="res://Utility/hurtbox.tscn" id="3_hurtbox"]
+[ext_resource type="PackedScene" uid="uid://blflem0f81sh7" path="res://Utility/hitbox.tscn" id="4_hitbox"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xejtf"]
+radius = 9.0
+height = 18.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ks7tj"]
+size = Vector2(28.70174, 35)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e773v"]
+size = Vector2(22, 24)
+
+[node name="enemy_kobold_strong" type="CharacterBody2D" groups=["enemy"]]
+collision_layer = 4
+collision_mask = 67
+motion_mode = 1
+script = ExtResource("1_strong")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.6, 0.6, 1)
+texture_filter = 1
+position = Vector2(2.2760007, 6.1304007)
+scale = Vector2(0.022, 0.022)
+texture = ExtResource("2_xejtf")
+flip_h = true
+hframes = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 7)
+scale = Vector2(1.0698822, 0.9379892)
+shape = SubResource("CapsuleShape2D_xejtf")
+
+[node name="walk_timer" type="Timer" parent="."]
+wait_time = 0.28
+one_shot = true
+
+[node name="Hurtbox" parent="." instance=ExtResource("3_hurtbox")]
+scale = Vector2(13.566108, 1.4632638)
+collision_layer = 8
+collision_mask = 16
+
+[node name="CollisionShape2D" parent="Hurtbox" index="0"]
+position = Vector2(-0.15772869, 5.128204)
+scale = Vector2(0.058411777, 0.43569255)
+shape = SubResource("RectangleShape2D_ks7tj")
+
+[node name="Hitbox" parent="." instance=ExtResource("4_hitbox")]
+scale = Vector2(1.0698822, 0.9379892)
+collision_layer = 8
+collision_mask = 32
+
+[node name="CollisionShape2D" parent="Hitbox" index="0"]
+position = Vector2(-2, 8)
+shape = SubResource("RectangleShape2D_e773v")
+
+[editable path="Hurtbox"]
+[editable path="Hitbox"]

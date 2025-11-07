@@ -42,7 +42,16 @@ func shoot_at_target(target: Node2D):
 	# Create a projectile
 	var projectile = projectile_scene.instantiate()
 	
-	# Add it to the scene
+	# Set projectile speed and direction BEFORE adding to scene
+	projectile.speed = projectile_speed
+	
+	# Apply damage multiplier if it exists - BEFORE adding to scene
+	if has_meta("damage_multiplier"):
+		var base_damage = projectile.damage
+		var multiplier = get_meta("damage_multiplier")
+		projectile.damage = int(base_damage * multiplier)
+	
+	# Add it to the scene (this calls _ready() which transfers damage to Area2D)
 	get_tree().current_scene.add_child(projectile)
 	
 	# Set projectile position to player position
@@ -52,12 +61,25 @@ func shoot_at_target(target: Node2D):
 	var direction = (target.global_position - global_position).normalized()
 	projectile.set_direction(direction)
 	
-	# Set projectile speed
-	projectile.speed = projectile_speed
-	
 	print("Shooting at enemy!")
 
 func set_fire_rate(new_rate: float):
 	fire_rate = new_rate
 	if fire_timer:
 		fire_timer.wait_time = 1.0 / fire_rate
+
+func increase_damage(percentage: float):
+	# Find all projectiles and update their damage multiplier
+	# Since projectiles are instantiated, we'll store a damage multiplier
+	if not has_meta("damage_multiplier"):
+		set_meta("damage_multiplier", 1.0)
+	
+	var current_multiplier = get_meta("damage_multiplier")
+	var new_multiplier = current_multiplier * (1.0 + percentage)
+	set_meta("damage_multiplier", new_multiplier)
+	print("Weapon damage multiplier: ", current_multiplier, " -> ", new_multiplier)
+
+func increase_attack_speed(percentage: float):
+	var new_fire_rate = fire_rate * (1.0 + percentage)
+	set_fire_rate(new_fire_rate)
+	print("Fire rate increased: ", fire_rate / (1.0 + percentage), " -> ", fire_rate)

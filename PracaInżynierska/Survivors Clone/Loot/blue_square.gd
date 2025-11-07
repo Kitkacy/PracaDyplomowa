@@ -8,6 +8,11 @@ var original_position: Vector2
 var time: float = 0.0
 var position_set: bool = false
 
+# Magnet system variables
+var player: Node2D = null
+var is_being_attracted: bool = false
+var magnet_speed: float = 0.0
+
 func _ready():
 	# Create a blue square texture
 	var sprite = $Sprite2D
@@ -19,14 +24,53 @@ func _ready():
 	# Start the despawn timer
 	$DespawnTimer.start()
 	
+	# Find the player reference
+	player = get_tree().get_first_node_in_group("player")
+	
 	# Wait one frame to ensure position is set correctly, then store it
 	await get_tree().process_frame
 	original_position = global_position
 	position_set = true
 
 func _process(delta):
-	# Only start floating animation after position is properly set
-	if position_set:
+	# Only start processing after position is properly set
+	if not position_set or not player:
+		return
+	
+	# Check distance to player for magnet attraction
+	var distance_to_player = global_position.distance_to(player.global_position)
+	
+	# Get player's magnet properties
+	var magnet_range = player.get("magnet_range") if player.has_method("get") else 80.0
+	var magnet_strength = player.get("magnet_strength") if player.has_method("get") else 150.0
+	
+	if distance_to_player <= magnet_range:
+		# Player is within magnet range - attract the loot
+		is_being_attracted = true
+		var direction_to_player = (player.global_position - global_position).normalized()
+		
+		# Calculate attraction speed (faster when closer)
+		var attraction_factor = 1.0 - (distance_to_player / magnet_range)
+		magnet_speed = magnet_strength * (1.0 + attraction_factor * 2.0)  # Speed increases as it gets closer
+		
+		# Move toward player
+		global_position += direction_to_player * magnet_speed * delta
+		
+		# Update original position for floating effect
+		original_position = global_position
+		
+		# Add visual feedback - make it glow when being attracted
+		var sprite = $Sprite2D
+		sprite.modulate = Color(0.3, 0.8, 1.2, 1)  # Brighter blue when attracted
+	else:
+		# Not being attracted - normal floating animation
+		is_being_attracted = false
+		magnet_speed = 0.0
+		
+		# Reset sprite color
+		var sprite = $Sprite2D
+		sprite.modulate = Color(0, 0.5, 1, 1)  # Normal blue color
+		
 		# Gentle floating animation
 		time += delta * float_speed
 		global_position.y = original_position.y + sin(time) * float_amplitude
@@ -48,43 +92,28 @@ func create_blue_square_texture() -> ImageTexture:
 	return texture
 
 func _on_pickup_area_body_entered(body):
-	print("Something entered pickup area: ", body.name)
 	if body.is_in_group("player"):
-		print("Player picked up blue square!")
-		
-		# Add to game stats
-		var game_stats = get_node("/root/GameStats")
-		if game_stats:
-			if game_stats.has_method("add_blue_square"):
-				game_stats.add_blue_square()
-				print("Called add_blue_square method")
-			else:
-				print("add_blue_square method not found")
-		else:
-			print("GameStats node not found")
-		
-		# Remove the loot item
-		queue_free()
-	else:
-		print("Not a player: ", body)
+		collect_loot()
+
+func collect_loot():
+	# Add visual/audio feedback for collection
+	var sprite = $Sprite2D
+	sprite.modulate = Color(1, 1, 1, 1)  # Flash white briefly
+	
+	# Add to game stats
+	var game_stats = get_node("/root/GameStats")
+	if game_stats and game_stats.has_method("add_blue_square"):
+		game_stats.add_blue_square()
+	
+	# Remove the loot item
+	queue_free()
 
 func _on_despawn_timer_timeout():
 	print("Blue square despawned after 30 seconds")
 	queue_free()
 
 func _on_pickup_area_area_entered(area):
-	print("Area entered pickup area: ", area.name)
 	# Check if the area belongs to a player (like player's hurtbox)
 	var area_owner = area.get_parent()
 	if area_owner and area_owner.is_in_group("player"):
-		print("Player area picked up blue square!")
-		
-		# Add to game stats
-		var game_stats = get_node("/root/GameStats")
-		if game_stats:
-			if game_stats.has_method("add_blue_square"):
-				game_stats.add_blue_square()
-				print("Called add_blue_square method via area detection")
-		
-		# Remove the loot item
-		queue_free()
+		collect_loot()

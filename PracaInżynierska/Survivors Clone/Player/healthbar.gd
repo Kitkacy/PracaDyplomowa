@@ -4,6 +4,7 @@ extends Control
 @onready var fill = $Fill
 
 var tween: Tween
+var initial_fill_width: float = 0.0
 
 func _ready():
 	# Create a tween for smooth animations
@@ -13,60 +14,38 @@ func _ready():
 	# Wait for the next frame to ensure nodes are properly sized
 	await get_tree().process_frame
 	
-	# Initialize the fill bar positioning
-	setup_fill_bar()
+	# Store the initial fill width
+	initial_fill_width = fill.size.x
 	
 	# Initialize with full health (will be overridden when player emits health_changed)
 	initialize_full_health()
 
 func initialize_full_health():
 	# Show the healthbar at full health initially
-	# This ensures it's visible from game start
-	var bg_size = background.size
-	var available_width = bg_size.x - 4
-	var available_height = bg_size.y - 4
-	
-	# Set to full health (100%)
-	fill.position.x = 2
-	fill.position.y = 2
-	fill.size.x = available_width  # Full width
-	fill.size.y = available_height
+	fill.anchor_right = 1.0
+	fill.offset_right = -2.0
 	fill.color = Color.GREEN  # Full health color
 	fill.visible = true
 	
-	# Set full opacity
+	# Set semi-transparent
 	modulate.a = 0.7  # Semi-transparent when at full health
-
-func setup_fill_bar():
-	# Reset anchors to use manual positioning
-	fill.anchor_left = 0
-	fill.anchor_top = 0
-	fill.anchor_right = 0
-	fill.anchor_bottom = 0
-	fill.offset_left = 0
-	fill.offset_top = 0
-	fill.offset_right = 0
-	fill.offset_bottom = 0
 
 func update_health(current_health: int, max_health: int):
 	var health_percentage = float(current_health) / float(max_health)
 	print("Healthbar update - HP: ", current_health, "/", max_health, " (", health_percentage * 100, "%)")
 	
-	# Ensure setup is done first
-	setup_fill_bar()
+	# Calculate the fill width based on percentage
+	# The fill should go from offset_left (2) to a percentage of the total width
+	# Total available width is background width - 4 (2px margin on each side)
+	var total_width = background.size.x - 4.0
+	var target_fill_width = total_width * health_percentage
 	
-	# Use the background size as reference since it defines the frame
-	var bg_size = background.size
-	var available_width = bg_size.x - 4  # 2px margin on each side
-	var available_height = bg_size.y - 4  # 2px margin on top/bottom
-	var fill_width = available_width * health_percentage
-	
-	# Position and size the fill bar manually (relative to healthbar position)
-	fill.size.x = max(fill_width, 0)  # Ensure it's never negative
-	fill.size.y = available_height
+	# Use anchor_right = 0 and set offset_right to control width
+	fill.anchor_right = 0.0
+	fill.offset_right = 2.0 + target_fill_width
 	
 	# Make sure the fill is visible
-	fill.visible = true
+	fill.visible = current_health > 0
 	
 	# Animate color change
 	var target_color: Color

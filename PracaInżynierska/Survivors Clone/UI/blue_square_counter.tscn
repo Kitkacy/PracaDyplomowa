@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dc3dw7mq0tqbu"]
 
-[ext_resource type="Script" uid="uid://m2l1k0j9i8h7g" path="res://UI/blue_square_counter.gd" id="1_counter"]
+[ext_resource type="Script" uid="uid://bhefstsitmuw5" path="res://UI/blue_square_counter.gd" id="1_counter"]
 
 [node name="BlueSquareCounter" type="Control"]
 z_index = 100
@@ -12,28 +12,34 @@ offset_left = -320.0
 offset_top = -240.0
 offset_right = -170.0
 offset_bottom = -180.0
+grow_vertical = 0
 script = ExtResource("1_counter")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+anchor_right = 0.34
+anchor_bottom = 0.75000006
+offset_right = 17.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0, 0, 0, 0.5)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+anchor_right = 0.344
+anchor_bottom = 0.74600005
 offset_left = 10.0
 offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_right = -1.6000023
+offset_bottom = -11.760002
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SquareIcon" type="ColorRect" parent="HBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
 color = Color(0, 0.5, 1, 1)
 
 [node name="CountLabel" type="Label" parent="HBoxContainer"]

@@ -1,11 +1,16 @@
-[gd_scene load_steps=8 format=3 uid="uid://d1us7nwaqdrjs"]
+[gd_scene load_steps=15 format=3 uid="uid://d1us7nwaqdrjs"]
 
-[ext_resource type="Texture2D" uid="uid://bwatfgjrxy858" path="res://Textures/dirt_full_new.png" id="1_62w18"]
+[ext_resource type="Texture2D" uid="uid://ji1aew1vy70c" path="res://Textures/Ground.png" id="1_bkhv4"]
 [ext_resource type="PackedScene" uid="uid://dp60vrvcbt3lo" path="res://Player/player.tscn" id="2_8a836"]
 [ext_resource type="PackedScene" uid="uid://df7c6ojntbdlb" path="res://Utility/enemy_spawner.tscn" id="3_j8job"]
 [ext_resource type="Script" uid="uid://ebkuuqhexblh" path="res://Utility/spawn_info.gd" id="4_k8do8"]
 [ext_resource type="PackedScene" uid="uid://5jkw6sueimh2" path="res://Enemy/enemy.tscn" id="5_bkhv4"]
-[ext_resource type="PackedScene" path="res://World/obelisk.tscn" id="6_bkhv4"]
+[ext_resource type="PackedScene" uid="uid://dxan1ca71w6w2" path="res://World/obelisk.tscn" id="6_bkhv4"]
+[ext_resource type="PackedScene" uid="uid://dax8y706w5v4u" path="res://Boundaries/boundary_placer.tscn" id="7_yf0ba"]
+[ext_resource type="PackedScene" uid="uid://dyplhrawyxb35" path="res://Buildings/rock.tscn" id="9_oe8m4"]
+[ext_resource type="Script" uid="uid://cmxl7dnwngfpb" path="res://World/world.gd" id="9_world"]
+[ext_resource type="PackedScene" uid="uid://jgr6c5qmnf77" path="res://Loot/health_pickup.tscn" id="10_w47uh"]
+[ext_resource type="PackedScene" uid="uid://bjx8k3yw5m7ql" path="res://UI/pause_menu.tscn" id="11_pause"]
 
 [sub_resource type="Resource" id="Resource_yf0ba"]
 script = ExtResource("4_k8do8")
@@ -15,21 +20,116 @@ enemy_num = 1
 enemy_spawn_delay = 1
 metadata/_custom_type_script = "uid://ebkuuqhexblh"
 
+[sub_resource type="Gradient" id="Gradient_eidgh"]
+colors = PackedColorArray(1, 1, 1, 1, 0.009316156, 0.009316156, 0.009316156, 0.009316156)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_oe8m4"]
+gradient = SubResource("Gradient_eidgh")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.84615386, 0.20512821)
+
 [node name="World" type="Node2D"]
+script = ExtResource("9_world")
 
 [node name="Background" type="Sprite2D" parent="."]
+modulate = Color(0.14570385, 0.22444066, 0.56678087, 1)
 texture_filter = 1
 texture_repeat = 2
-position = Vector2(626, 322)
-texture = ExtResource("1_62w18")
+position = Vector2(446, 353)
+scale = Vector2(0.38541815, 0.32866457)
+texture = ExtResource("1_bkhv4")
 region_enabled = true
-region_rect = Rect2(269.444, 328.749, 1467.22, 747.418)
+region_rect = Rect2(-2412.317, -2274.765, 6636, 6636)
 
 [node name="Player" parent="." instance=ExtResource("2_8a836")]
+modulate = Color(0.67481464, 0.67481464, 0.6748146, 1)
 position = Vector2(466, 330)
 
 [node name="EnemySpawner" parent="." instance=ExtResource("3_j8job")]
 spawns = Array[ExtResource("4_k8do8")]([SubResource("Resource_yf0ba")])
 
 [node name="Obelisk" parent="." instance=ExtResource("6_bkhv4")]
+modulate = Color(0.41981313, 0.4198132, 0.4198129, 1)
 position = Vector2(519, 315)
+
+[node name="PointLight2D" type="PointLight2D" parent="Obelisk"]
+position = Vector2(-6, -33)
+color = Color(1, 0.6188882, 0.8963502, 1)
+energy = 1.77
+texture = SubResource("GradientTexture2D_oe8m4")
+
+[node name="PointLight2D" type="PointLight2D" parent="Obelisk/PointLight2D"]
+position = Vector2(16, 0)
+color = Color(1, 0.6188882, 0.8963502, 1)
+energy = 1.77
+texture = SubResource("GradientTexture2D_oe8m4")
+
+[node name="BoundaryPlacer" parent="." instance=ExtResource("7_yf0ba")]
+
+[node name="HealthPickup" parent="." instance=ExtResource("10_w47uh")]
+position = Vector2(513, 386)
+scale = Vector2(1, 1.0016904)
+
+[node name="Rock" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(314, 434)
+scale = Vector2(-0.84000003, 0.52)
+metadata/_edit_group_ = true
+
+[node name="Rock4" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(629, 374)
+scale = Vector2(0.81570303, 1.2961497)
+metadata/_edit_group_ = true
+
+[node name="Rock5" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(604, 234)
+scale = Vector2(-1.1599905, 1)
+metadata/_edit_group_ = true
+
+[node name="Rock6" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(444, 224)
+scale = Vector2(1, 0.68)
+metadata/_edit_group_ = true
+
+[node name="Rock8" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(751, 334)
+metadata/_edit_group_ = true
+
+[node name="Rock10" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(193, 338)
+metadata/_edit_group_ = true
+
+[node name="Rock11" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(302, 200)
+metadata/_edit_group_ = true
+
+[node name="Rock12" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(613, 152)
+metadata/_edit_group_ = true
+
+[node name="Rock2" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(498, 523)
+metadata/_edit_group_ = true
+
+[node name="Rock3" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(707, 511)
+metadata/_edit_group_ = true
+
+[node name="Rock7" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(296, 371)
+scale = Vector2(1, 1.3199999)
+metadata/_edit_group_ = true
+
+[node name="Rock9" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(164, 214)
+metadata/_edit_group_ = true
+
+[node name="Rock13" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(148, 558)
+metadata/_edit_group_ = true
+
+[node name="Rock14" parent="." instance=ExtResource("9_oe8m4")]
+position = Vector2(285, 63)
+metadata/_edit_group_ = true
+
+[node name="PauseMenu" parent="." instance=ExtResource("11_pause")]
