@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
-@export var movement_speed = 11.0  # Slower but stronger
+@export var movement_speed = 17.0  # 1.5x exponential scaling (Tier 4)
 @onready var sprite = $Sprite2D
-@export var hp = 90  # Much stronger
+@export var hp = 77  # 1.5x exponential scaling (51 * 1.5 = 76.5)
 @onready var walk_timer = get_node("walk_timer")
 var target = null
 var player = null
@@ -28,7 +28,7 @@ func _ready():
 	# Configure hitbox for attacking rocks
 	if has_node("Hitbox"):
 		var hitbox = $Hitbox
-		hitbox.damage = 12  # Very strong enemy deals high damage
+		hitbox.damage = 27  # 1.5x exponential scaling (18 * 1.5 = 27)
 		print("Enemy hitbox configured - damage: ", hitbox.damage, " layer: ", hitbox.collision_layer, " mask: ", hitbox.collision_mask)
 	else:
 		print("ERROR: No Hitbox found on enemy!")

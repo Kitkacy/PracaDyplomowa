@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://ddgaui5el2iqc"]
+
+[ext_resource type="Script" uid="uid://b3rs84crywslu" path="res://UI/phase_modifier_notification.gd" id="1_modifier_notif"]
+
+[node name="PhaseModifierNotification" type="CanvasLayer"]
+layer = 50
+script = ExtResource("1_modifier_notif")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = -1
+anchor_right = 0.34
+anchor_bottom = 0.75000006
+offset_left = 120.0
+offset_top = 159.0
+offset_right = 320.32004
+offset_bottom = 171.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.9568782, 0.36496797)
+color = Color(0, 0, 0, 0.5)
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -201.0
+offset_right = 200.0
+offset_bottom = -101.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 18
+text = "⚠ Enemies are 30% faster!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

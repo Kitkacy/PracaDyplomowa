@@ -1,1 +1,14 @@
+res://UI/victory_screen.tscn
+res://UI/victory_screen.gd
+res://UI/game_over.tscn
+res://Buildings/mine.gd
+res://GameStats.gd
+res://Buildings/tower.gd
+res://Enemy/enemy_kobold_strong.gd
+res://Enemy/enemy_kobold_strong_2.gd
+res://Enemy/enemy_kobold_strong_3.gd
+res://Enemy/enemy_kobold_strong_4.gd
+res://Enemy/enemy_kobold_strong_5.gd
 res://Utility/upgrade_manager.gd
+res://Weapons/drone.gd
+res://World/obelisk.gd

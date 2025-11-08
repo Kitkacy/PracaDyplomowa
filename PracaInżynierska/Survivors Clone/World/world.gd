@@ -2,10 +2,20 @@ extends Node2D
 
 @onready var background = $Background
 @onready var boundary_placer = $BoundaryPlacer
+@onready var modifier_notification = $PhaseModifierNotification
 
 func _ready():
 	# Set up automatic boundaries based on background size
 	setup_automatic_boundaries()
+	
+	# Connect to GameStats phase modifier signal
+	var game_stats = get_node("/root/GameStats")
+	if game_stats:
+		game_stats.phase_modifier_applied.connect(_on_phase_modifier_applied)
+
+func _on_phase_modifier_applied(modifier_description: String):
+	if modifier_notification:
+		modifier_notification.show_modifier(modifier_description)
 
 func setup_automatic_boundaries():
 	if not background or not boundary_placer:

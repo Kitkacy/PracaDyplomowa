@@ -1,5 +1,9 @@
 extends StaticBody2D
 
+# Base stats
+var base_explosion_damage: int = 50
+
+# Current stats (modified by upgrades)
 @export var explosion_damage: int = 50
 @export var explosion_radius: float = 60.0
 @export var fuse_time: float = 3.0
@@ -22,6 +26,9 @@ var time_elapsed: float = 0.0
 var explosion_texture = preload("res://Textures/Enemy/explosion_pixelfied.png")
 
 func _ready():
+	# Apply global upgrade multipliers from GameStats
+	apply_upgrade_multipliers()
+	
 	# Store original color
 	original_color = sprite.color
 	
@@ -70,6 +77,13 @@ func set_placement_valid(valid: bool):
 		else:
 			sprite.color = Color(1, 0, 0, 0.8)
 
+func apply_upgrade_multipliers():
+	# Apply GameStats multipliers to mine stats
+	var game_stats = get_node("/root/GameStats")
+	if game_stats:
+		explosion_damage = int(base_explosion_damage * game_stats.mine_damage_multiplier)
+		print("Mine created with damage multiplier: ", explosion_damage)
+
 func place_mine():
 	if can_place:
 		is_placed = true
@@ -83,17 +97,39 @@ func place_mine():
 			explosion_radius_indicator.set("color", Color(1, 1, 0, 0.15))
 			explosion_radius_indicator.queue_redraw()
 		
+		# Check for enemies already in range when placed
+		check_for_enemies_in_range()
+		
 		return true
 	return false
+
+func check_for_enemies_in_range():
+	# Check if any enemies are already within the blast radius when mine is placed
+	print("Checking for enemies already in mine range...")
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	
+	for enemy in enemies:
+		if enemy and is_instance_valid(enemy):
+			var distance = global_position.distance_to(enemy.global_position)
+			print("Enemy found at distance: ", distance, " (blast radius: ", explosion_radius, ")")
+			if distance <= explosion_radius:
+				print("Enemy already in range! Triggering mine immediately...")
+				trigger_mine()
+				return
 
 func _on_trigger_area_entered(area: Area2D):
 	# Only trigger if placed and not already triggered
 	if not is_placed or is_triggered:
 		return
 	
-	# Check if it's an enemy hurtbox
-	if area.has_signal("hurt"):
+	print("Mine trigger area entered by: ", area.name, " from parent: ", area.get_parent().name if area.get_parent() else "no parent")
+	
+	# Check if it's an enemy hurtbox (collision layer 8) or if the parent is an enemy
+	if area.collision_layer == 8 or (area.get_parent() and area.get_parent().is_in_group("enemy")):
+		print("Enemy detected in mine blast zone! Triggering mine...")
 		trigger_mine()
+	else:
+		print("Non-enemy area detected, ignoring.")
 
 func trigger_mine():
 	if is_triggered:
@@ -141,9 +177,16 @@ func explode():
 	for enemy in enemies:
 		if enemy and is_instance_valid(enemy):
 			var distance = global_position.distance_to(enemy.global_position)
+			print("Enemy at distance: ", distance, " from mine (radius: ", explosion_radius, ")")
 			if distance <= explosion_radius:
-				# Damage the enemy
-				if enemy.has_method("_on_hurtbox_hurt"):
+				# Damage the enemy through its hurtbox
+				var hurtbox = enemy.get_node("Hurtbox")
+				if hurtbox and hurtbox.has_signal("hurt"):
+					print("Damaging enemy with ", explosion_damage, " damage")
+					hurtbox.hurt.emit(explosion_damage, global_position)
+					hit_count += 1
+				elif enemy.has_method("_on_hurtbox_hurt"):
+					print("Direct damage to enemy with ", explosion_damage, " damage")
 					enemy._on_hurtbox_hurt(explosion_damage, global_position)
 					hit_count += 1
 	
@@ -163,11 +206,15 @@ func show_explosion():
 	explosion_sprite.global_position = global_position
 	explosion_sprite.scale = Vector2(explosion_radius / 100.0, explosion_radius / 100.0)  # Scale to match radius
 	
+	# IMPORTANT: Allow explosion sprite to process when game is paused (e.g., during level up)
+	explosion_sprite.process_mode = Node.PROCESS_MODE_ALWAYS
+	
 	# Add to scene
 	get_parent().add_child(explosion_sprite)
 	
-	# Fade out animation
+	# Fade out animation - this tween will continue even when game is paused
 	var tween = create_tween()
+	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)  # Use physics process to continue during pause
 	tween.tween_property(explosion_sprite, "modulate:a", 0.0, 1.0)
 	tween.tween_callback(explosion_sprite.queue_free)
 	

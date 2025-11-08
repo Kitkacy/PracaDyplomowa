@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
-@export var movement_speed = 20.0  # Slower than weak kobold
+@export var movement_speed = 23.0  # 1.5x exponential scaling (Tier 1)
 @onready var sprite = $Sprite2D
-@export var hp = 30  # Stronger than weak kobold
+@export var hp = 23  # 1.5x exponential scaling from weak kobold (15 * 1.5 = 22.5)
 @onready var walk_timer = get_node("walk_timer")
 var target = null
 var player = null
@@ -32,7 +32,7 @@ func _ready():
 	# Configure hitbox for attacking rocks
 	if has_node("Hitbox"):
 		var hitbox = $Hitbox
-		hitbox.damage = 8  # Stronger enemy deals more damage
+		hitbox.damage = 8  # 1.5x exponential scaling (5 * 1.5 = 7.5, rounded to 8)
 		print("Enemy hitbox configured - damage: ", hitbox.damage, " layer: ", hitbox.collision_layer, " mask: ", hitbox.collision_mask)
 	else:
 		print("ERROR: No Hitbox found on enemy!")

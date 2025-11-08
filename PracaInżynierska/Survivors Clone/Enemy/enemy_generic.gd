@@ -32,8 +32,11 @@ func _ready():
 	# Configure hitbox for attacking rocks
 	if has_node("Hitbox"):
 		var hitbox = $Hitbox
-		hitbox.damage = 5  # Set enemy melee damage
-		print("Enemy hitbox configured - damage: ", hitbox.damage, " layer: ", hitbox.collision_layer, " mask: ", hitbox.collision_mask)
+		# Apply phase modifier to damage
+		var game_stats = get_node("/root/GameStats")
+		var damage_multiplier = game_stats.get_enemy_damage_multiplier() if game_stats else 1.0
+		hitbox.damage = int(5 * damage_multiplier)  # Set enemy melee damage with modifier
+		print("Enemy hitbox configured - base damage: 5, multiplier: ", damage_multiplier, ", final damage: ", hitbox.damage, " layer: ", hitbox.collision_layer, " mask: ", hitbox.collision_mask)
 	else:
 		print("ERROR: No Hitbox found on enemy!")
 	
@@ -53,20 +56,17 @@ func _ready():
 	# Wait a frame to ensure all nodes are ready
 	await get_tree().process_frame
 	
-	# Choose target randomly: 50% chance for player, 50% for obelisk
+	# Dynamic target selection based on available targets
 	player = get_tree().get_first_node_in_group("player")
 	obelisk = get_tree().get_first_node_in_group("obelisk")
+	var towers = get_tree().get_nodes_in_group("tower")
 	
 	print("Enemy collision setup - layer: ", collision_layer, " mask: ", collision_mask)
 	
-	if randf() < 0.5 and player:
-		target = player
-	elif obelisk:
-		target = obelisk
-	else:
-		target = player  # Fallback to player if obelisk not found
+	# Choose target with equal probability for each available target type
+	choose_target_dynamically(towers)
 	
-	print("Enemy targeting: ", "Player" if target == player else ("Obelisk" if target == obelisk else "None"))
+	print("Enemy targeting: ", get_target_name())
 
 func _physics_process(delta):
 	# Handle knockback
@@ -81,7 +81,10 @@ func _physics_process(delta):
 	# Simple charge movement - no obstacle avoidance
 	if target:
 		var direction = global_position.direction_to(target.global_position)
-		velocity = direction * movement_speed
+		# Apply phase modifier to movement speed
+		var game_stats = get_node("/root/GameStats")
+		var speed_multiplier = game_stats.get_enemy_speed_multiplier() if game_stats else 1.0
+		velocity = direction * movement_speed * speed_multiplier
 		
 		# Move without any collision handling
 		move_and_slide()
@@ -105,10 +108,16 @@ func _physics_process(delta):
 
 func _on_hurtbox_hurt(damage: Variant, attacker_position: Vector2 = Vector2.ZERO) -> void:
 	print("Enemy _on_hurtbox_hurt called! Damage: ", damage, " Current HP: ", hp)
-	hp -= damage
+	
+	# Apply phase modifier damage resistance
+	var game_stats = get_node("/root/GameStats")
+	var resistance = game_stats.get_enemy_damage_resistance() if game_stats else 0.0
+	var actual_damage = damage * (1.0 - resistance)
+	
+	hp -= actual_damage
 	
 	# Show damage number
-	show_damage_number(damage)
+	show_damage_number(int(actual_damage))
 	
 	# Flash sprite
 	flash_sprite()
@@ -180,5 +189,43 @@ func apply_knockback(attacker_position: Vector2):
 	# Apply knockback velocity
 	knockback_velocity = knockback_direction * knockback_strength
 	knockback_timer = knockback_duration
+
+func choose_target_dynamically(towers: Array):
+	# Create list of available targets
+	var available_targets = []
+	
+	# Always add player and obelisk if they exist
+	if player:
+		available_targets.append({"type": "player", "target": player})
+	if obelisk:
+		available_targets.append({"type": "obelisk", "target": obelisk})
+	
+	# Add all towers
+	for tower in towers:
+		if tower and is_instance_valid(tower):
+			available_targets.append({"type": "tower", "target": tower})
+	
+	print("Available targets: ", available_targets.size(), " (Player: ", player != null, ", Obelisk: ", obelisk != null, ", Towers: ", towers.size(), ")")
+	
+	# Choose random target with equal probability
+	if available_targets.size() > 0:
+		var random_index = randi() % available_targets.size()
+		var selected = available_targets[random_index]
+		target = selected.target
+		print("Selected target type: ", selected.type)
+	else:
+		# Fallback to player
+		target = player
+		print("No targets found, defaulting to player")
+
+func get_target_name() -> String:
+	if target == player:
+		return "Player"
+	elif target == obelisk:
+		return "Obelisk" 
+	elif target and target.is_in_group("tower"):
+		return "Tower"
+	else:
+		return "None"
 
 # All obstacle avoidance and collision handling functions removed - using simple charge movement

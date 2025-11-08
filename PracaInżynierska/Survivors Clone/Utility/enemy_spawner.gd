@@ -28,13 +28,17 @@ var difficulty_increase_interval = 60  # Increase difficulty every 60 seconds (1
 func _ready():
 	# Initialize kobold progression system
 	kobold_scenes = [
-		weak_kobold_scene,
-		strong_kobold_scene,
-		strong_kobold_2_scene,
-		strong_kobold_3_scene,
-		strong_kobold_4_scene,
-		strong_kobold_5_scene
+		weak_kobold_scene,      # Tier 0
+		strong_kobold_scene,    # Tier 1 - should appear at 3 minutes
+		strong_kobold_2_scene,  # Tier 2 - should appear at 6 minutes  
+		strong_kobold_3_scene,  # Tier 3 - should appear at 9 minutes
+		strong_kobold_4_scene,  # Tier 4 - should appear at 12 minutes
+		strong_kobold_5_scene   # Tier 5 - should appear at 15 minutes
 	]
+	
+	print("Kobold progression order:")
+	for i in range(kobold_scenes.size()):
+		print("  Tier ", i, ": ", kobold_scenes[i].resource_path.get_file())
 	
 	# Store base spawn rates for scaling and ensure weak kobolds spawn indefinitely
 	for spawn_info in spawns:
@@ -143,7 +147,7 @@ func progress_enemy_tier():
 	current_enemy_tier += 1
 	
 	# Ensure we don't exceed available kobold types
-	if current_enemy_tier >= kobold_scenes.size() - 1:
+	if current_enemy_tier >= kobold_scenes.size():
 		current_enemy_tier = kobold_scenes.size() - 1
 		print("Maximum enemy tier reached: ", current_enemy_tier)
 		return
@@ -160,9 +164,10 @@ func progress_enemy_tier():
 			base_spawn_rates.erase(weakest_spawn)
 			print("Removed weakest enemy: ", weakest_spawn.enemy.resource_path.get_file())
 	
-	# Add the new stronger enemy type
-	var new_kobold_scene = kobold_scenes[current_enemy_tier + 1]  # +1 because we keep current + add next
-	add_kobold_spawn(new_kobold_scene, current_enemy_tier + 1)
+	# Add the new stronger enemy type - use current_enemy_tier directly
+	var new_kobold_scene = kobold_scenes[current_enemy_tier]
+	print("Adding kobold tier ", current_enemy_tier, ": ", new_kobold_scene.resource_path.get_file())
+	add_kobold_spawn(new_kobold_scene, current_enemy_tier)
 
 func find_weakest_spawn() -> Spawn_info:
 	# Find the spawn with the lowest tier kobold (earliest in kobold_scenes array)

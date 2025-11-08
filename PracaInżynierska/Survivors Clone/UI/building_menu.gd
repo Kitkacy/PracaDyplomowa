@@ -3,6 +3,7 @@ extends Control
 @onready var tower_button = $Panel/HBoxContainer/TowerButton
 @onready var barricade_button = $Panel/HBoxContainer/BarricadeButton
 @onready var mine_button = $Panel/HBoxContainer/MineButton
+@onready var drone_button = $Panel/HBoxContainer/DroneButton if has_node("Panel/HBoxContainer/DroneButton") else null
 @onready var blue_square_counter = $"../BlueSquareCounter"
 
 var tower_scene = preload("res://Buildings/tower.tscn")
@@ -15,11 +16,17 @@ var rotation_prompt: Control = null
 var tower_cost: int = 30
 var barricade_cost: int = 15
 var mine_cost: int = 15
+var drone_cost: int = 10
 
 func _ready():
 	tower_button.pressed.connect(_on_tower_button_pressed)
 	barricade_button.pressed.connect(_on_barricade_button_pressed)
 	mine_button.pressed.connect(_on_mine_button_pressed)
+	if drone_button:
+		drone_button.pressed.connect(_on_drone_button_pressed)
+		print("Drone button connected successfully")
+	else:
+		print("ERROR: Drone button not found!")
 
 func _on_tower_button_pressed():
 	var game_stats = get_node("/root/GameStats")
@@ -41,6 +48,47 @@ func _on_mine_button_pressed():
 		start_building_placement(mine_scene, mine_cost)
 	else:
 		print("Not enough blue squares! Need: ", mine_cost)
+
+func _on_drone_button_pressed():
+	print("=== DRONE BUTTON PRESSED ===")
+	var game_stats = get_node("/root/GameStats")
+	var player = get_tree().get_first_node_in_group("player")
+	
+	if not player:
+		print("ERROR: Player not found!")
+		return
+	
+	print("Player found: ", player.name)
+	print("Current drones: ", player.get_drone_count(), "/", player.max_drones)
+	
+	# Check if player has reached max drones
+	if player.get_drone_count() >= player.max_drones:
+		print("Maximum drones reached (", player.max_drones, ")")
+		show_max_drones_popup()
+		return
+	
+	# Check if player has enough blue squares
+	var blue_squares = game_stats.get_blue_squares_count() if game_stats else 0
+	print("Blue squares available: ", blue_squares, " (need ", drone_cost, ")")
+	
+	if game_stats and blue_squares >= drone_cost:
+		print("Attempting to spend ", drone_cost, " blue squares...")
+		# Spend blue squares
+		if game_stats.spend_blue_squares(drone_cost):
+			print("Blue squares spent successfully, adding drone...")
+			# Add drone to player
+			if player.add_drone():
+				print("SUCCESS: Drone purchased! Cost: ", drone_cost, " blue squares")
+			else:
+				print("ERROR: Failed to add drone, refunding...")
+				# Refund if drone couldn't be added
+				game_stats.blue_squares_collected += drone_cost
+				game_stats.blue_squares_changed.emit(game_stats.blue_squares_collected)
+		else:
+			print("ERROR: Failed to spend blue squares")
+	else:
+		print("Not enough blue squares! Have: ", blue_squares, ", Need: ", drone_cost)
+	print("===========================")
 
 func start_building_placement(building_scene: PackedScene, _cost: int):
 	if is_placing_building:
@@ -192,3 +240,27 @@ func cancel_placement():
 	if building_ghost:
 		building_ghost.queue_free()
 	finish_placement()
+
+func show_max_drones_popup():
+	# Create a temporary popup label
+	var popup = Label.new()
+	popup.text = "Maximum drones reached (5/5)!"
+	popup.add_theme_color_override("font_color", Color.RED)
+	popup.add_theme_font_size_override("font_size", 20)
+	popup.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	popup.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	# Position it above the building menu
+	popup.position = Vector2(-50, -40)
+	popup.size = Vector2(200, 30)
+	
+	# Add to scene
+	add_child(popup)
+	
+	# Animate the popup
+	var popup_tween = create_tween()
+	popup.modulate.a = 0.0
+	popup_tween.tween_property(popup, "modulate:a", 1.0, 0.3)
+	popup_tween.tween_interval(2.0)  # Stay visible for 2 seconds
+	popup_tween.tween_property(popup, "modulate:a", 0.0, 0.5)
+	popup_tween.tween_callback(popup.queue_free)

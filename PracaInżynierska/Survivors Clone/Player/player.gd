@@ -13,6 +13,11 @@ var hp = 70
 @export var magnet_range = 80.0  # Distance at which loot starts being attracted
 @export var magnet_strength = 150.0  # How fast loot moves toward player
 
+# Drone system
+var drones: Array = []
+var max_drones: int = 5
+var drone_scene = preload("res://Weapons/drone.tscn")
+
 func _physics_process(_delta):
 	movement()
 
@@ -129,6 +134,54 @@ func heal(amount: int):
 
 func _on_hurtbox_hurt(damage: Variant, attacker_position: Vector2 = Vector2.ZERO) -> void:
 	take_damage(damage)
+
+func add_drone() -> bool:
+	print("add_drone() called - current drones: ", drones.size(), "/", max_drones)
+	
+	if drones.size() >= max_drones:
+		print("Maximum drones reached (", max_drones, ")")
+		return false
+	
+	# Create new drone
+	print("Instantiating drone from scene...")
+	var drone = drone_scene.instantiate()
+	print("Drone created: ", drone)
+	print("Player parent: ", get_parent())
+	
+	get_parent().add_child(drone)
+	print("Drone added to scene tree")
+	
+	# Add to drones array
+	drones.append(drone)
+	print("Drone added to array")
+	
+	# Update orbit parameters for all drones
+	update_drone_orbits()
+	print("Orbit parameters updated")
+	
+	print("SUCCESS: Drone added! Total drones: ", drones.size())
+	return true
+
+func remove_drone(drone: Node):
+	var index = drones.find(drone)
+	if index != -1:
+		drones.remove_at(index)
+		print("Drone removed! Remaining drones: ", drones.size())
+		# Update orbit parameters for remaining drones
+		update_drone_orbits()
+
+func update_drone_orbits():
+	# Clean up invalid drones first
+	drones = drones.filter(func(drone): return is_instance_valid(drone))
+	
+	var total = drones.size()
+	print("Updating drone orbits - Total valid drones: ", total)
+	for i in range(total):
+		print("  Setting drone ", i, " parameters (", i, "/", total, ")")
+		drones[i].set_orbit_parameters(i, total)
+
+func get_drone_count() -> int:
+	return drones.size()
 
 # Optional: Draw magnet range for debugging (you can remove this later)
 func _draw():

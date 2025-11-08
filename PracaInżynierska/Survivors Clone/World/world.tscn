@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://cmxl7dnwngfpb" path="res://World/world.gd" id="9_world"]
 [ext_resource type="PackedScene" uid="uid://jgr6c5qmnf77" path="res://Loot/health_pickup.tscn" id="10_w47uh"]
 [ext_resource type="PackedScene" uid="uid://bjx8k3yw5m7ql" path="res://UI/pause_menu.tscn" id="11_pause"]
+[ext_resource type="PackedScene" uid="uid://ct5k8yw2m9pql" path="res://UI/phase_modifier_notification.tscn" id="12_modifier"]
 
 [sub_resource type="Resource" id="Resource_yf0ba"]
 script = ExtResource("4_k8do8")
@@ -133,3 +134,5 @@ position = Vector2(285, 63)
 metadata/_edit_group_ = true
 
 [node name="PauseMenu" parent="." instance=ExtResource("11_pause")]
+
+[node name="PhaseModifierNotification" parent="." instance=ExtResource("12_modifier")]

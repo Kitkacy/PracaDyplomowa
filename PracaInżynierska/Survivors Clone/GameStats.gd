@@ -5,6 +5,7 @@ signal exp_changed(current_exp, max_exp, level)
 signal level_changed(new_level)
 signal phase_changed(phase, time_remaining)
 signal game_victory
+signal phase_modifier_applied(modifier_description: String)
 
 var survival_time: float = 0.0
 var is_game_active: bool = false
@@ -20,9 +21,51 @@ var phase_time: float = 600.0  # 10 minutes in seconds
 var current_phase_time: float = 0.0
 var max_phases: int = 3
 
+# Phase modifier system
+var active_modifiers: Array = []
+var available_modifiers: Array = []
+var enemy_speed_multiplier: float = 1.0
+var enemy_damage_resistance: float = 0.0
+var enemy_damage_multiplier: float = 1.0
+
+# Building/Tower/Drone upgrade multipliers (exponential)
+var tower_damage_multiplier: float = 1.0
+var tower_fire_rate_multiplier: float = 1.0
+var tower_health_multiplier: float = 1.0
+var drone_damage_multiplier: float = 1.0
+var drone_speed_multiplier: float = 1.0
+var drone_health_multiplier: float = 1.0
+var base_health_multiplier: float = 1.0
+var mine_damage_multiplier: float = 1.0
+
 func _ready():
+	# Initialize available modifiers
+	setup_modifiers()
 	# Start the survival timer when the game starts
 	start_survival_timer()
+
+func setup_modifiers():
+	# Create the pool of available modifiers
+	available_modifiers = [
+		{
+			"name": "Swift Enemies",
+			"description": "⚠ Enemies are 30% faster!",
+			"type": "speed",
+			"value": 0.3
+		},
+		{
+			"name": "Tough Enemies",
+			"description": "⚠ Enemies take 30% less damage!",
+			"type": "resistance",
+			"value": 0.3
+		},
+		{
+			"name": "Brutal Enemies",
+			"description": "⚠ Enemies deal 30% more damage!",
+			"type": "damage",
+			"value": 0.3
+		}
+	]
 
 func start_survival_timer():
 	survival_time = 0.0
@@ -60,6 +103,14 @@ func reset_survival_time():
 	current_phase_time = 0.0
 	reset_blue_squares()  # Reset blue squares when starting new game
 	reset_exp()  # Reset EXP when starting new game
+	reset_modifiers()  # Reset phase modifiers when starting new game
+
+func reset_modifiers():
+	active_modifiers.clear()
+	enemy_speed_multiplier = 1.0
+	enemy_damage_resistance = 0.0
+	enemy_damage_multiplier = 1.0
+	setup_modifiers()  # Repopulate available modifiers
 
 func add_blue_square():
 	blue_squares_collected += 1
@@ -130,6 +181,10 @@ func get_level() -> int:
 	return level
 
 func advance_phase():
+	# Apply a random modifier before advancing (phases 1 and 2 only)
+	if current_phase >= 1 and current_phase <= 2:
+		apply_random_modifier()
+	
 	current_phase += 1
 	current_phase_time = 0.0
 	
@@ -143,6 +198,51 @@ func advance_phase():
 		# Reset phase timer
 		var time_remaining = phase_time - current_phase_time
 		phase_changed.emit(current_phase, time_remaining)
+
+func apply_random_modifier():
+	if available_modifiers.is_empty():
+		print("No more modifiers available!")
+		return
+	
+	# Pick a random modifier from available ones
+	var random_index = randi() % available_modifiers.size()
+	var modifier = available_modifiers[random_index]
+	
+	# Remove from available pool so it can't be picked again
+	available_modifiers.remove_at(random_index)
+	
+	# Add to active modifiers
+	active_modifiers.append(modifier)
+	
+	# Apply the modifier effect
+	match modifier["type"]:
+		"speed":
+			enemy_speed_multiplier += modifier["value"]
+			print("Applied speed modifier: ", enemy_speed_multiplier, "x")
+		"resistance":
+			enemy_damage_resistance += modifier["value"]
+			print("Applied resistance modifier: ", enemy_damage_resistance * 100, "%")
+		"damage":
+			enemy_damage_multiplier += modifier["value"]
+			print("Applied damage modifier: ", enemy_damage_multiplier, "x")
+	
+	# Emit signal for notification
+	phase_modifier_applied.emit(modifier["description"])
+	
+	print("=== PHASE MODIFIER APPLIED ===")
+	print("Modifier: ", modifier["name"])
+	print("Description: ", modifier["description"])
+	print("Active modifiers: ", active_modifiers.size())
+	print("==============================")
+
+func get_enemy_speed_multiplier() -> float:
+	return enemy_speed_multiplier
+
+func get_enemy_damage_resistance() -> float:
+	return enemy_damage_resistance
+
+func get_enemy_damage_multiplier() -> float:
+	return enemy_damage_multiplier
 
 func get_current_phase() -> int:
 	return current_phase
@@ -170,29 +270,9 @@ func skip_time_by_minutes(minutes: int):
 		advance_phase()
 
 func show_victory_screen():
-	# Find and show the game over screen, but change it to victory
-	var game_over = get_tree().get_first_node_in_group("game_over")
-	if not game_over:
-		# If no game over in scene, try to instantiate one
-		var game_over_scene = load("res://UI/game_over.tscn")
-		if game_over_scene:
-			game_over = game_over_scene.instantiate()
-			
-			# Find the player's camera and add the screen to it
-			var player = get_tree().get_first_node_in_group("player")
-			if player:
-				var camera = player.get_node_or_null("Camera2D")
-				if camera:
-					camera.add_child(game_over)
-					game_over.add_to_group("game_over")
-				else:
-					get_tree().current_scene.add_child(game_over)
-					game_over.add_to_group("game_over")
-			else:
-				get_tree().current_scene.add_child(game_over)
-				game_over.add_to_group("game_over")
+	# Stop survival timer
+	stop_survival_timer()
 	
-	if game_over and game_over.has_method("show_victory"):
-		game_over.show_victory()
-	elif game_over and game_over.has_method("show_game_over"):
-		game_over.show_game_over()
+	# Change to the dedicated victory screen
+	print("Switching to victory screen...")
+	get_tree().change_scene_to_file("res://UI/victory_screen.tscn")

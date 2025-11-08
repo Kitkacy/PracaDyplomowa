@@ -2,6 +2,10 @@ extends StaticBody2D
 
 signal health_changed(current_health, max_health)
 
+# Base stats
+var base_max_hp: int = 200
+
+# Current stats (modified by upgrades)
 var max_hp = 200
 var hp = 200
 @onready var healthbar = $HealthBar
@@ -23,6 +27,9 @@ var player_ref: Node2D = null
 var repair_timer: Timer
 
 func _ready():
+	# Apply global upgrade multipliers from GameStats
+	apply_upgrade_multipliers()
+	
 	# Initialize healthbar
 	health_changed.emit(hp, max_hp)
 	print("Obelisk initialized with ", hp, " HP")
@@ -43,6 +50,14 @@ func _ready():
 	
 	# Set up repair timer
 	setup_repair_timer()
+
+func apply_upgrade_multipliers():
+	# Apply GameStats multipliers to obelisk stats
+	var game_stats = get_node("/root/GameStats")
+	if game_stats:
+		max_hp = int(base_max_hp * game_stats.base_health_multiplier)
+		hp = max_hp
+		print("Obelisk created with health multiplier: ", max_hp)
 
 func take_damage(damage: int):
 	hp -= damage

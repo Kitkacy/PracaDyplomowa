@@ -3,8 +3,7 @@
 [ext_resource type="Script" uid="uid://cdl4y4bhpuveu" path="res://Buildings/mine.gd" id="1_mine"]
 [ext_resource type="Texture2D" uid="uid://cdwugf6mugjfi" path="res://Textures/mine.png" id="2_01ouk"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_mine_body"]
-size = Vector2(16, 16)
+[sub_resource type="CircleShape2D" id="CircleShape2D_01ouk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_mine_trigger"]
 radius = 60.0
@@ -27,7 +26,7 @@ scale = Vector2(0.018, 0.018)
 texture = ExtResource("2_01ouk")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_mine_body")
+shape = SubResource("CircleShape2D_01ouk")
 
 [node name="TriggerArea" type="Area2D" parent="."]
 collision_layer = 0

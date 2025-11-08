@@ -1,10 +1,20 @@
 extends Node2D
 
+# Base stats (never change these)
+var base_damage: int = 15
+var base_attack_cooldown: float = 0.5  # Time between shots (1.0 / fire_rate)
+var base_max_hp: int = 50
+
+# Current stats (modified by upgrades)
 @export var damage: int = 15
 @export var fire_rate: float = 2.0  # Shots per second
 @export var detection_range: float = 120.0
 @export var max_health: int = 50
 @export var current_health: int = 50
+
+var max_hp: int = 50  # Alias for compatibility
+var hp: int = 50  # Alias for compatibility
+var attack_cooldown: float = 0.5
 
 @onready var fire_timer = $FireTimer
 @onready var sprite = $Sprite2D2
@@ -22,12 +32,16 @@ var can_place: bool = true
 var is_placing: bool = false  # Track if currently in placement mode
 
 func _ready():
+	# Apply global upgrade multipliers from GameStats
+	apply_upgrade_multipliers()
+	
 	# Store original sprite color for hit flash effect
 	if sprite:
 		original_modulate = sprite.modulate
 	
-	# Set up the fire timer
-	fire_timer.wait_time = 1.0 / fire_rate
+	# Set up the fire timer with upgraded stats
+	attack_cooldown = base_attack_cooldown
+	fire_timer.wait_time = attack_cooldown
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	fire_timer.start()
 	
@@ -35,10 +49,29 @@ func _ready():
 	if range_indicator:
 		range_indicator.visible = false
 	
-	# Setup health system
+	# Setup health system with upgraded HP
 	current_health = max_health
+	hp = max_health
+	max_hp = max_health
 	if hurtbox:
 		hurtbox.hurt.connect(_on_damage_received)
+
+func apply_upgrade_multipliers():
+	# Apply GameStats multipliers to tower stats
+	var game_stats = get_node("/root/GameStats")
+	if game_stats:
+		# Apply damage multiplier
+		damage = int(base_damage * game_stats.tower_damage_multiplier)
+		
+		# Apply fire rate multiplier (decrease cooldown)
+		attack_cooldown = base_attack_cooldown / game_stats.tower_fire_rate_multiplier
+		
+		# Apply health multiplier
+		max_health = int(base_max_hp * game_stats.tower_health_multiplier)
+		max_hp = max_health
+		hp = max_health
+		
+		print("Tower created with multipliers - Damage: ", damage, " Fire Rate: ", 1.0/attack_cooldown, " HP: ", max_health)
 	if healthbar:
 		healthbar.update_health(current_health, max_health)
 

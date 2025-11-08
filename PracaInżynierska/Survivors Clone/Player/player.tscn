@@ -71,7 +71,7 @@ anchor_left = -0.16875
 anchor_right = -0.16875
 offset_left = 203.0
 offset_top = 292.0
-offset_right = 404.0
+offset_right = 496.0
 offset_bottom = 342.0
 
 [node name="PhaseTimer" parent="CanvasLayer" instance=ExtResource("9_phase_timer")]
