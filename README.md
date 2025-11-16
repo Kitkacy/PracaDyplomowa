@@ -1,5 +1,5 @@
 <img width="2480" height="1402" alt="Screenshot 2025-11-16 at 17 29 45" src="https://github.com/user-attachments/assets/357b3668-ea74-4e76-a94a-cba489f364d6" />
-<img width="2480" height="1402" alt="Screenshot 2025-11-16 at 17 29 18" src="https://github.com/user-attachments/assets/7e0d0635-4853-4345-94a9-2853eab907c5" />
+<img width="2480" height="1402" alt="Screenshot 2025-11-16 at 17 36 36" src="https://github.com/user-attachments/assets/9efe2091-c870-4ad3-baab-6e06e7e72a40" />
 
 # Opis projektu
 
